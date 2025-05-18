@@ -49,11 +49,23 @@ const _attendanceManagement = () => {
       setLoading(false)
     }
   }
-
   // Function to format date and time
   const formatDateTime = (dateString) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
+    if (!dateString) return 'Not available';
+    
+    try {
+      const date = new Date(dateString);
+      
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        return 'Not available';
+      }
+      
+      return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+    } catch (err) {
+      console.error('Error formatting date:', err, dateString);
+      return 'Not available';
+    }
   }
   // Function to export attendance data as CSV
   const handleExportCSV = async () => {
@@ -150,11 +162,10 @@ const _attendanceManagement = () => {
               </div>
             </Card>
           )}
-          
-          {!loading && selectedEvent && eventDetails && (
+            {!loading && selectedEvent && eventDetails && (
             <Card>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <Title level={4}>{eventDetails.title}</Title>
+                <Title level={4}>{eventDetails.event ? eventDetails.event.title : eventDetails.title}</Title>
                 <Button 
                   onClick={handleExportCSV}
                   type="primary"
@@ -168,21 +179,21 @@ const _attendanceManagement = () => {
               <Row gutter={[16, 16]} style={{ marginBottom: '16px' }}>
                 <Col span={12}>
                   <Text type="secondary">Start Date:</Text>{' '}
-                  <Text>{formatDateTime(eventDetails.startDate)}</Text>
+                  <Text>{formatDateTime(eventDetails.event ? eventDetails.event.startDate : eventDetails.startDate)}</Text>
                 </Col>
                 <Col span={12}>
                   <Text type="secondary">End Date:</Text>{' '}
-                  <Text>{formatDateTime(eventDetails.endDate)}</Text>
+                  <Text>{formatDateTime(eventDetails.event ? eventDetails.event.endDate : eventDetails.endDate)}</Text>
                 </Col>
                 <Col span={12}>
                   <Text type="secondary">Location:</Text>{' '}
-                  <Text>{eventDetails.location}</Text>
+                  <Text>{eventDetails.event ? eventDetails.event.location : eventDetails.location}</Text>
                 </Col>
                 <Col span={12}>
                   <Text type="secondary">Status:</Text>{' '}
                   <Badge 
-                    status={eventDetails.isActive ? "success" : "error"}
-                    text={eventDetails.isActive ? "Active" : "Inactive"} 
+                    status={(eventDetails.event ? eventDetails.event.isActive : eventDetails.isActive) ? "success" : "error"}
+                    text={(eventDetails.event ? eventDetails.event.isActive : eventDetails.isActive) ? "Active" : "Inactive"} 
                   />
                 </Col>
               </Row>
@@ -195,8 +206,7 @@ const _attendanceManagement = () => {
                   type="warning"
                   showIcon
                 />
-              ) : (
-                <Table
+              ) : (                <Table
                   dataSource={eventDetails.attendance}
                   rowKey={(record, idx) => idx}
                   columns={[
@@ -207,9 +217,9 @@ const _attendanceManagement = () => {
                     },
                     {
                       title: 'Check-in Time',
-                      dataIndex: 'timestamp',
-                      key: 'timestamp',
-                      render: timestamp => formatDateTime(timestamp)
+                      dataIndex: 'checkedInAt',
+                      key: 'checkedInAt',
+                      render: (checkedInAt) => formatDateTime(checkedInAt)
                     }
                   ]}
                   bordered
