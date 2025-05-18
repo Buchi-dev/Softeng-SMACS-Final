@@ -1,6 +1,49 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+  background-color: #f0f2f5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Override some default Ant Design styling */
+.ant-layout {
+  background-color: #f0f2f5;
+}
+
+/* Style adjustments for tables */
+.ant-table-wrapper {
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Card styling */
+.ant-card {
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Custom hover effects */
+.ant-btn:hover, 
+.ant-btn:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Transitions */
+.ant-btn, 
+.ant-input, 
+.ant-select {
+  transition: all 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+  .ant-layout-sider {
+    position: absolute;
+    z-index: 999;
+    height: 100%;
+  }
 }

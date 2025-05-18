@@ -1,5 +1,6 @@
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
-// Import pages
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom'
+// Import pages and layouts
+import MainLayout from './components/MainLayout'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import AttendanceConsole from './pages/_attendanceConsole'
@@ -12,13 +13,18 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<h1>Home Page</h1>} />
+        {/* Public Routes */}
+        <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/attendance-console" element={<AttendanceConsole />} />
-        <Route path="/attendance-dashboard" element={<AttendanceDashboard />} />
-        <Route path="/user-management" element={ <UserManagement />} />
-        <Route path="/attendance-management" element={<AttendanceManagement />} />
+        
+        {/* Protected Routes - inside MainLayout */}
+        <Route element={<MainLayout />}>
+          <Route path="/attendance-dashboard" element={<AttendanceDashboard />} />
+          <Route path="/attendance-console" element={<AttendanceConsole />} />
+          <Route path="/user-management" element={<UserManagement />} />
+          <Route path="/attendance-management" element={<AttendanceManagement />} />
+        </Route>
       </Routes>
     </Router>
   )
