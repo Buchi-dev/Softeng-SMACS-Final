@@ -8,8 +8,7 @@ const PORT = 5000;
 const adminRoutes = require('./_admins/_adminRoutes');
 const userRoutes = require('./_users/_userRoutes');
 const eventRoutes = require('./_event/_eventRoute');
-// const attendanceRoutesRoutes = require('./_attendance/_attendanceRoutes');
-
+const attendanceRoutes = require('./_attendance/_attendanceRoutes');
 
 
 // Initialize express app
@@ -29,6 +28,7 @@ app.use(cors({
 app.use('/api/admins', adminRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/events', eventRoutes);
+app.use('/api/attendance', attendanceRoutes);
 // app.use('/api/attendance', attendanceRoutesRoutes);
 
 connectDB().then(() => {
