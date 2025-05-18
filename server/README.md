@@ -33,6 +33,71 @@ server/
 └── package-lock.json  # Locked dependencies
 ```
 
+## Database Models/ERD
+
+### User Model
+```
+User {
+  idNumber: String (required, unique)
+  firstName: String (required)
+  lastName: String (required)
+  email: String (required, unique)
+  course: String (required)
+  yearLevel: Number (required)
+  section: String (required)
+  role: String (enum: ['student', 'faculty'])
+  createdAt: Date
+  updatedAt: Date
+}
+```
+
+### Admin Model
+```
+Admin {
+  username: String (required, unique)
+  password: String (required)
+  firstName: String (required)
+  lastName: String (required)
+  email: String (required, unique)
+  createdAt: Date
+  updatedAt: Date
+}
+```
+
+### Event Model
+```
+Event {
+  title: String (required)
+  description: String
+  date: Date (required)
+  startTime: String (required)
+  endTime: String (required)
+  venue: String (required)
+  organizer: String (required)
+  status: String (enum: ['upcoming', 'ongoing', 'completed', 'cancelled'])
+  createdAt: Date
+  updatedAt: Date
+}
+```
+
+### Attendance Model
+```
+Attendance {
+  eventId: ObjectId (ref: 'Event')
+  userId: ObjectId (ref: 'User')
+  checkInTime: Date
+  status: String (enum: ['present', 'absent', 'late'])
+  createdAt: Date
+  updatedAt: Date
+}
+```
+
+### Entity Relationships
+- One Admin can manage many Events (1:N)
+- One Event can have many Attendances (1:N)
+- One User can have many Attendances (1:N)
+- Events and Users have a Many-to-Many relationship through Attendance records
+
 ## API Endpoints
 
 ### Admin Routes (`/api/admins`)
