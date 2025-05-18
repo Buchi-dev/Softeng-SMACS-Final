@@ -41,6 +41,11 @@ const MainLayout = ({ children }) => {
       icon: <UserOutlined />,
       label: <Link to="/user-management">User Management</Link>,
     },
+    {
+      key: '/event-management',
+      icon: <AuditOutlined />,
+      label: <Link to="/event-management">Event Management</Link>,
+    },
   ];
 
   return (

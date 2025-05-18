@@ -7,6 +7,7 @@ import AttendanceConsole from './pages/_attendanceConsole'
 import AttendanceDashboard from './pages/_attendanceDashboard'
 import UserManagement from './pages/_userManagement'
 import AttendanceManagement from './pages/_attendanceManagement'
+import EventManagement from './pages/_eventManagement'
 
 
 const App = () => {
@@ -24,6 +25,7 @@ const App = () => {
           <Route path="/attendance-console" element={<AttendanceConsole />} />
           <Route path="/user-management" element={<UserManagement />} />
           <Route path="/attendance-management" element={<AttendanceManagement />} />
+          <Route path="/event-management" element={<EventManagement />} />
         </Route>
       </Routes>
     </Router>
