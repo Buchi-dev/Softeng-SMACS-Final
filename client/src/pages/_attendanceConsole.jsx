@@ -1,5 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { getEventsWithAttendance, rfidCheckIn } from '../services/attendance'
+import { Card, Input, Button, List, Badge, Tag, Typography, Row, Col, Space, Divider, Alert, Spin, Empty } from 'antd'
+import { SearchOutlined, CheckCircleOutlined, ScanOutlined, RollbackOutlined } from '@ant-design/icons'
+
+const { Title, Text } = Typography
 
 const _attendanceConsole = () => {
   const [events, setEvents] = useState([])
@@ -131,146 +135,163 @@ const _attendanceConsole = () => {
     
     return new Date(dateString).toLocaleDateString(undefined, options)
   }
-
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Attendance Console</h1>
+    <div style={{ padding: '24px' }}>
+      <Title level={2}>Attendance Console</Title>
       
-      {loading && !selectedEvent && <div className="text-center">Loading events data...</div>}
+      {loading && !selectedEvent && <Spin tip="Loading events data..." size="large" />}
       
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
-
-      {!selectedEvent ? (
+        <Alert 
+          message="Error" 
+          description={error}
+          type="error" 
+          showIcon 
+          style={{ marginBottom: '16px' }}
+        />
+      )}      {!selectedEvent ? (
         <div>
-          <div className="mb-4">
-            <input
-              type="text"
+          <div style={{ marginBottom: '16px' }}>
+            <Input
+              prefix={<SearchOutlined />}
               placeholder="Search events..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full p-2 border rounded"
+              size="large"
+              allowClear
             />
           </div>
           
           {filteredEvents.length === 0 && !loading ? (
-            <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
-              No active events found.
-            </div>
+            <Alert
+              message="No active events found"
+              type="warning"
+              showIcon
+            />
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Row gutter={[16, 16]}>
               {filteredEvents.map(event => (
-                <button 
-                  key={event._id} 
-                  onClick={() => handleEventSelect(event)}
-                  className="text-left border rounded-lg p-4 hover:bg-blue-50 transition-colors"
-                >
-                  <h2 className="text-xl font-semibold mb-2">{event.title}</h2>
-                  <div>
-                    <span className="text-gray-600">Location:</span> {event.location}
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Time:</span> {formatDate(event.startDate)}
-                  </div>
-                  <div className="mt-2 pt-2 border-t text-sm text-gray-500">
-                    Click to start attendance check-in
-                  </div>
-                </button>
+                <Col key={event._id} xs={24} md={12} lg={8}>
+                  <Card 
+                    hoverable
+                    onClick={() => handleEventSelect(event)}
+                    style={{ height: '100%' }}
+                  >
+                    <Title level={4}>{event.title}</Title>
+                    <Space direction="vertical" style={{ width: '100%' }}>
+                      <Text type="secondary">
+                        <strong>Location:</strong> {event.location}
+                      </Text>
+                      <Text type="secondary">
+                        <strong>Time:</strong> {formatDate(event.startDate)}
+                      </Text>
+                      <Divider />
+                      <Text type="secondary" style={{ display: 'flex', alignItems: 'center' }}>
+                        <ScanOutlined style={{ marginRight: 8 }} /> 
+                        Click to start attendance check-in
+                      </Text>
+                    </Space>
+                  </Card>
+                </Col>
               ))}
-            </div>
+            </Row>
           )}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <div className="border rounded-lg p-6 bg-white">
-              <div className="flex justify-between items-center mb-6">
+        </div>      ) : (
+        <Row gutter={[24, 24]}>
+          <Col xs={24} lg={16}>
+            <Card bordered style={{ height: '100%' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                 <div>
-                  <h2 className="text-2xl font-bold">{selectedEvent.title}</h2>
-                  <p className="text-gray-600">{selectedEvent.location} • {formatDate(selectedEvent.startDate)}</p>
+                  <Title level={3}>{selectedEvent.title}</Title>
+                  <Text type="secondary">{selectedEvent.location} • {formatDate(selectedEvent.startDate)}</Text>
                 </div>
-                <button 
+                <Button 
                   onClick={() => setSelectedEvent(null)}
-                  className="px-3 py-1 border rounded hover:bg-gray-100 transition-colors"
+                  icon={<RollbackOutlined />}
                 >
                   Change Event
-                </button>
+                </Button>
               </div>
               
-              <div className="text-center py-8">
-                <h3 className="text-xl font-semibold mb-4">RFID Check-in</h3>
-                <p className="mb-6 text-gray-600">Scan an RFID card or enter ID manually</p>
+              <div style={{ textAlign: 'center', padding: '24px 0' }}>
+                <Title level={4}>
+                  <ScanOutlined style={{ marginRight: 8 }} />
+                  RFID Check-in
+                </Title>
+                <Text type="secondary" style={{ marginBottom: '24px', display: 'block' }}>
+                  Scan an RFID card or enter ID manually
+                </Text>
                 
-                <form onSubmit={handleIdSubmit} className="max-w-md mx-auto">
-                  <div className="flex">
-                    <input
+                <form onSubmit={handleIdSubmit} style={{ maxWidth: '400px', margin: '0 auto' }}>
+                  <Input.Group compact>
+                    <Input
                       ref={idInputRef}
-                      type="text"
                       value={idInput}
                       onChange={handleIdInputChange}
                       placeholder="Scan or Type ID Number"
-                      className="flex-1 p-3 border rounded-l text-lg"
+                      style={{ width: 'calc(100% - 100px)' }}
+                      size="large"
                       autoFocus
                     />
-                    <button
-                      type="submit"
+                    <Button
+                      type="primary"
+                      htmlType="submit"
                       disabled={!idInput || loading}
-                      className={`px-6 py-3 rounded-r font-medium ${
-                        !idInput || loading
-                          ? 'bg-gray-300 text-gray-600'
-                          : 'bg-blue-600 text-white hover:bg-blue-700'
-                      } transition-colors`}
+                      style={{ width: '100px' }}
+                      size="large"
+                      icon={<CheckCircleOutlined />}
                     >
                       Check In
-                    </button>
-                  </div>
+                    </Button>
+                  </Input.Group>
                   
                   {loading && (
-                    <div className="mt-4 text-center text-gray-600">
-                      Processing...
+                    <div style={{ marginTop: '16px', textAlign: 'center' }}>
+                      <Spin tip="Processing..." />
                     </div>
                   )}
                   
                   {checkInStatus && (
-                    <div className={`mt-4 p-3 rounded ${
-                      checkInStatus.success
-                        ? 'bg-green-100 text-green-800 border border-green-300'
-                        : 'bg-red-100 text-red-800 border border-red-300'
-                    }`}>
-                      {checkInStatus.message}
-                    </div>
+                    <Alert
+                      style={{ marginTop: '16px' }}
+                      message={checkInStatus.message}
+                      type={checkInStatus.success ? "success" : "error"}
+                      showIcon
+                    />
                   )}
                 </form>
               </div>
-            </div>
-          </div>
+            </Card>          </Col>
           
-          <div className="lg:col-span-1">
-            <div className="border rounded-lg p-4 bg-white">
-              <h3 className="text-lg font-semibold mb-3">Recent Check-ins</h3>
-              
+          <Col xs={24} lg={8}>
+            <Card title="Recent Check-ins" bordered>
               {recentCheckins.length === 0 ? (
-                <p className="text-gray-500 text-center py-4">No recent check-ins</p>
-              ) : (                <ul className="divide-y">
-                  {recentCheckins.map((checkin, idx) => (
-                    <li key={idx} className="py-3">
-                      <div className="font-medium">ID: {checkin.id}</div>
-                      {checkin.userName && (
-                        <div className="text-sm text-gray-700">{checkin.userName}</div>
-                      )}
-                      <div className="text-sm text-gray-500">
-                        {new Date(checkin.timestamp).toLocaleTimeString()}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+                <Empty description="No recent check-ins" />
+              ) : (
+                <List
+                  dataSource={recentCheckins}
+                  renderItem={(checkin, idx) => (
+                    <List.Item key={idx}>
+                      <List.Item.Meta
+                        title={<Text strong>ID: {checkin.id}</Text>}
+                        description={
+                          <>
+                            {checkin.userName && (
+                              <div>{checkin.userName}</div>
+                            )}
+                            <Text type="secondary">
+                              {new Date(checkin.timestamp).toLocaleTimeString()}
+                            </Text>
+                          </>
+                        }
+                      />
+                    </List.Item>
+                  )}
+                />
               )}
-            </div>
-          </div>
-        </div>
+            </Card>
+          </Col>
+        </Row>
       )}
     </div>
   )

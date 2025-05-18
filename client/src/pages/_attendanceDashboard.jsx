@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { getAttendanceStatistics } from '../services/attendance'
+import { Card, Row, Col, Typography, Badge, Tag, Progress, Spin, Alert, Statistic, Divider } from 'antd'
+import { CheckCircleOutlined, UserOutlined, PercentageOutlined, CalendarOutlined, EnvironmentOutlined } from '@ant-design/icons'
 
+const { Title, Text } = Typography
 
 const _attendanceDashboard = () => {
   const [events, setEvents] = useState([])
@@ -22,68 +25,98 @@ const _attendanceDashboard = () => {
 
     fetchStats()
   }, [])
-
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Attendance Dashboard</h1>
+    <div style={{ padding: '24px' }}>
+      <Title level={2}>Attendance Dashboard</Title>
       
-      {loading && <div className="text-center">Loading events data...</div>}
+      {loading && <div style={{ textAlign: 'center', padding: '40px' }}><Spin size="large" tip="Loading events data..." /></div>}
       
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
+        <Alert 
+          message="Error" 
+          description={error}
+          type="error" 
+          showIcon 
+          style={{ marginBottom: '16px' }}
+        />
       )}
 
       {!loading && events.length === 0 && (
-        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
-          No events found.
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <Alert
+          message="No Events"
+          description="No events found in the system."
+          type="warning"
+          showIcon
+          style={{ marginBottom: '16px' }}
+        />
+      )}      <Row gutter={[16, 16]}>
         {events.map(event => (
-          <div 
-            key={event._id} 
-            className="border rounded-lg p-4 shadow-sm bg-white hover:shadow-md transition-shadow"
+          <Col 
+            key={event._id}
+            xs={24} 
+            md={12} 
+            lg={8}
           >
-            <h2 className="text-xl font-semibold mb-2">{event.title}</h2>
-            <div className="text-gray-600 mb-3">
-              <div>Date: {new Date(event.startDate).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}</div>
-              <div>Location: {event.location}</div>
-              <div>Status: <span className={`font-medium ${event.isActive ? 'text-green-600' : 'text-red-600'}`}>
-                {event.isActive ? 'Active' : 'Inactive'}
-              </span></div>
-            </div>
-              <div className="mt-4 pt-3 border-t">
-              <h3 className="font-semibold">Attendance Statistics:</h3>
-              <div className="flex justify-between mt-2">
-                <div>
-                  <div className="text-lg font-bold">{event.attendanceCount || 0}</div>
-                  <div className="text-sm text-gray-500">Check-ins</div>
+            <Card 
+              hoverable 
+              title={
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>{event.title}</span>
+                  <Badge 
+                    status={event.isActive ? "success" : "error"} 
+                    text={event.isActive ? "Active" : "Inactive"}
+                  />
                 </div>
-                <div>
-                  <div className="text-lg font-bold">{event.participantCount || 0}</div>
-                  <div className="text-sm text-gray-500">Registered</div>
-                </div>
-                <div>
-                  <div className="text-lg font-bold">
-                    {event.attendanceRate ? Math.round(event.attendanceRate) : 0}%
-                  </div>
-                  <div className="text-sm text-gray-500">Attendance Rate</div>
-                </div>
+              }
+              style={{ height: '100%' }}
+            >
+              <div style={{ marginBottom: '16px' }}>
+                <p>
+                  <CalendarOutlined style={{ marginRight: 8 }} />
+                  {new Date(event.startDate).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}
+                </p>
+                <p>
+                  <EnvironmentOutlined style={{ marginRight: 8 }} />
+                  {event.location}
+                </p>
               </div>
               
-              <div className="mt-3 pt-2 w-full bg-gray-200 rounded-full h-2.5">
-                <div 
-                  className="bg-blue-600 h-2.5 rounded-full" 
-                  style={{ width: `${Math.min(100, event.attendanceRate || 0)}%` }}
-                ></div>
-              </div>
-            </div>
-          </div>
+              <Divider>Attendance Statistics</Divider>
+              
+              <Row gutter={16} style={{ textAlign: 'center', marginBottom: '16px' }}>
+                <Col span={8}>
+                  <Statistic 
+                    title="Check-ins" 
+                    value={event.attendanceCount || 0}
+                    prefix={<CheckCircleOutlined />} 
+                  />
+                </Col>
+                <Col span={8}>
+                  <Statistic 
+                    title="Registered" 
+                    value={event.participantCount || 0}
+                    prefix={<UserOutlined />} 
+                  />
+                </Col>
+                <Col span={8}>
+                  <Statistic 
+                    title="Rate" 
+                    value={event.attendanceRate ? Math.round(event.attendanceRate) : 0}
+                    suffix="%" 
+                    prefix={<PercentageOutlined />}
+                  />
+                </Col>
+              </Row>
+              
+              <Progress 
+                percent={Math.min(100, event.attendanceRate || 0)} 
+                showInfo={false} 
+                status={event.attendanceRate > 70 ? "success" : event.attendanceRate > 30 ? "normal" : "exception"}
+              />
+            </Card>
+          </Col>
         ))}
-      </div>
+      </Row>
     </div>
   )
 }

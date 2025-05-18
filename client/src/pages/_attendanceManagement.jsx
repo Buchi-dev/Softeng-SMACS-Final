@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { getEventsWithAttendance, getEventAttendance, exportAttendanceCSV } from '../services/attendance'
+import { Card, Row, Col, Typography, Button, Table, Badge, Spin, Alert, List, Divider, Space, Tooltip } from 'antd'
+import { DownloadOutlined, CalendarOutlined, EnvironmentOutlined } from '@ant-design/icons'
+
+const { Title, Text } = Typography
 
 const _attendanceManagement = () => {
   const [events, setEvents] = useState([])
@@ -79,130 +83,149 @@ const _attendanceManagement = () => {
       setLoading(false)
     }
   }
-
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Attendance Management</h1>
+    <div style={{ padding: '24px' }}>
+      <Title level={2}>Attendance Management</Title>
       
-      {loading && !selectedEvent && <div className="text-center">Loading events data...</div>}
+      {loading && !selectedEvent && <div style={{ textAlign: 'center', padding: '40px' }}><Spin size="large" tip="Loading events data..." /></div>}
       
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-1">
-          <h2 className="text-xl font-semibold mb-3">Events</h2>
-          
-          {events.length === 0 && !loading ? (
-            <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
-              No events found.
-            </div>
-          ) : (
-            <ul className="border rounded-lg divide-y">
-              {events.map(event => (
-                <li key={event._id} className="p-0">
-                  <button 
+        <Alert 
+          message="Error" 
+          description={error}
+          type="error" 
+          showIcon 
+          style={{ marginBottom: '16px' }}
+        />
+      )}      <Row gutter={24}>
+        <Col xs={24} md={8}>
+          <Card title="Events" bordered>
+            {events.length === 0 && !loading ? (
+              <Alert
+                message="No Events"
+                description="No events found in the system."
+                type="warning"
+                showIcon
+              />
+            ) : (
+              <List
+                dataSource={events}
+                renderItem={event => (
+                  <List.Item
+                    key={event._id}
                     onClick={() => handleEventSelect(event._id)}
-                    className={`w-full text-left p-3 hover:bg-gray-50 transition-colors ${selectedEvent === event._id ? 'bg-blue-50' : ''}`}
+                    style={{ cursor: 'pointer', padding: '12px 16px' }}
+                    className={selectedEvent === event._id ? 'ant-list-item-active' : ''}
                   >
-                    <div className="font-medium">{event.title}</div>
-                    <div className="text-sm text-gray-500">
-                      {formatDateTime(event.startDate)}
-                    </div>
-                    <div className="flex justify-between items-center mt-1">
-                      <span className={`text-xs px-2 py-1 rounded ${event.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                        {event.isActive ? 'Active' : 'Inactive'}
-                      </span>
-                      <span className="text-sm font-medium">
-                        {event.attendance ? event.attendance.length : 0} check-ins
-                      </span>
-                    </div>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-        
-        <div className="md:col-span-2">
+                    <List.Item.Meta
+                      title={event.title}
+                      description={formatDateTime(event.startDate)}
+                    />
+                    <Space>
+                      <Badge 
+                        status={event.isActive ? "success" : "error"}
+                        text={event.isActive ? "Active" : "Inactive"} 
+                      />
+                      <Badge 
+                        count={event.attendance ? event.attendance.length : 0}
+                        overflowCount={999}
+                        style={{ backgroundColor: '#1890ff' }}
+                      />
+                    </Space>
+                  </List.Item>
+                )}
+                style={{ 
+                  height: 'calc(100vh - 240px)',
+                  overflowY: 'auto',
+                }}
+              />
+            )}
+          </Card>
+        </Col>
+          <Col xs={24} md={16}>
           {loading && selectedEvent && (
-            <div className="text-center p-8 border rounded-lg bg-gray-50">
-              Loading event details...
-            </div>
+            <Card>
+              <div style={{ textAlign: 'center', padding: '40px' }}>
+                <Spin size="large" tip="Loading event details..." />
+              </div>
+            </Card>
           )}
           
           {!loading && selectedEvent && eventDetails && (
-            <div className="border rounded-lg p-4 bg-white">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">{eventDetails.title}</h2>                <button 
+            <Card>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <Title level={4}>{eventDetails.title}</Title>
+                <Button 
                   onClick={handleExportCSV}
-                  className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                  type="primary"
+                  icon={<DownloadOutlined />}
                   disabled={!eventDetails.attendance || eventDetails.attendance.length === 0 || loading}
                 >
                   {loading ? 'Exporting...' : 'Export CSV'}
-                </button>
+                </Button>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <span className="text-gray-500">Start Date:</span>
-                  <span className="ml-2">{formatDateTime(eventDetails.startDate)}</span>
-                </div>
-                <div>
-                  <span className="text-gray-500">End Date:</span>
-                  <span className="ml-2">{formatDateTime(eventDetails.endDate)}</span>
-                </div>
-                <div>
-                  <span className="text-gray-500">Location:</span>
-                  <span className="ml-2">{eventDetails.location}</span>
-                </div>
-                <div>
-                  <span className="text-gray-500">Status:</span>
-                  <span className={`ml-2 font-medium ${eventDetails.isActive ? 'text-green-600' : 'text-red-600'}`}>
-                    {eventDetails.isActive ? 'Active' : 'Inactive'}
-                  </span>
-                </div>
-              </div>
+              <Row gutter={[16, 16]} style={{ marginBottom: '16px' }}>
+                <Col span={12}>
+                  <Text type="secondary">Start Date:</Text>{' '}
+                  <Text>{formatDateTime(eventDetails.startDate)}</Text>
+                </Col>
+                <Col span={12}>
+                  <Text type="secondary">End Date:</Text>{' '}
+                  <Text>{formatDateTime(eventDetails.endDate)}</Text>
+                </Col>
+                <Col span={12}>
+                  <Text type="secondary">Location:</Text>{' '}
+                  <Text>{eventDetails.location}</Text>
+                </Col>
+                <Col span={12}>
+                  <Text type="secondary">Status:</Text>{' '}
+                  <Badge 
+                    status={eventDetails.isActive ? "success" : "error"}
+                    text={eventDetails.isActive ? "Active" : "Inactive"} 
+                  />
+                </Col>
+              </Row>
               
-              <h3 className="text-lg font-semibold mt-6 mb-2">Attendance Register</h3>
+              <Divider orientation="left">Attendance Register</Divider>
               
               {!eventDetails.attendance || eventDetails.attendance.length === 0 ? (
-                <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 p-3 rounded">
-                  No attendance records for this event.
-                </div>
+                <Alert
+                  message="No attendance records for this event"
+                  type="warning"
+                  showIcon
+                />
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full bg-white border">
-                    <thead>
-                      <tr className="bg-gray-100">
-                        <th className="py-2 px-4 border text-left">User ID</th>
-                        <th className="py-2 px-4 border text-left">Check-in Time</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {eventDetails.attendance.map((record, idx) => (
-                        <tr key={idx} className="hover:bg-gray-50">
-                          <td className="py-2 px-4 border">{record.user}</td>
-                          <td className="py-2 px-4 border">{formatDateTime(record.timestamp)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <Table
+                  dataSource={eventDetails.attendance}
+                  rowKey={(record, idx) => idx}
+                  columns={[
+                    {
+                      title: 'User ID',
+                      dataIndex: 'user',
+                      key: 'user'
+                    },
+                    {
+                      title: 'Check-in Time',
+                      dataIndex: 'timestamp',
+                      key: 'timestamp',
+                      render: timestamp => formatDateTime(timestamp)
+                    }
+                  ]}
+                  bordered
+                  pagination={{ pageSize: 10 }}
+                />
               )}
-            </div>
+            </Card>
           )}
           
           {!selectedEvent && !loading && (
-            <div className="flex items-center justify-center h-64 border rounded-lg bg-gray-50 text-gray-500">
-              Select an event to view attendance details
-            </div>
+            <Card style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '300px' }}>
+              <Text type="secondary">Select an event to view attendance details</Text>
+            </Card>
           )}
-        </div>
-      </div>
+        </Col>
+      </Row>
     </div>
   )
 }
