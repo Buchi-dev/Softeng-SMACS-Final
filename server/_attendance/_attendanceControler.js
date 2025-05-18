@@ -48,19 +48,35 @@ const getAttendanceStats = async (req, res) => {
   try {
     const events = await EventModel.find();
     
-    const stats = events.map(event => ({
-      _id: event._id,
-      title: event.title,
-      startDate: event.startDate,
-      endDate: event.endDate,
-      isActive: event.isActive,
-      location: event.location,
-      participantCount: event.participants.length,
-      attendanceCount: event.attendance.length,
-      attendanceRate: event.participants.length > 0 
-        ? (event.attendance.length / event.participants.length) * 100 
-        : 0
-    }));
+    const stats = events.map(event => {
+      // Determine expected attendance based on available data
+      let expectedAttendance;
+      
+      if (event.expectedParticipants && event.expectedParticipants > 0) {
+        // Use the explicitly defined expected participants field
+        expectedAttendance = event.expectedParticipants;
+      } else if (event.participants.length > 0) {
+        // Fall back to registered participants if available
+        expectedAttendance = event.participants.length;
+      } else {
+        // Default to attendance count or minimum of 10
+        expectedAttendance = Math.max(event.attendance.length, 10);
+      }
+        
+      return {
+        _id: event._id,
+        title: event.title,
+        startDate: event.startDate,
+        endDate: event.endDate,
+        isActive: event.isActive,
+        location: event.location,
+        participantCount: event.participants.length,
+        attendanceCount: event.attendance.length,
+        expectedParticipants: event.expectedParticipants || 0,
+        // Calculate rate based on expected attendance
+        attendanceRate: (event.attendance.length / expectedAttendance) * 100
+      };
+    });
     
     res.status(200).json(stats);
   } catch (error) {

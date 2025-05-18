@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { getAttendanceStatistics } from '../services/attendance'
-import { Card, Row, Col, Typography, Badge, Tag, Progress, Spin, Alert, Statistic, Divider } from 'antd'
-import { CheckCircleOutlined, UserOutlined, PercentageOutlined, CalendarOutlined, EnvironmentOutlined } from '@ant-design/icons'
+import { Card, Row, Col, Typography, Badge, Tag, Progress, Spin, Alert, Statistic, Divider, Tooltip } from 'antd'
+import { CheckCircleOutlined, UserOutlined, PercentageOutlined, CalendarOutlined, EnvironmentOutlined, TeamOutlined } from '@ant-design/icons'
 
 const { Title, Text } = Typography
 
@@ -29,7 +29,12 @@ const _attendanceDashboard = () => {
     <div style={{ padding: '24px' }}>
       <Title level={2}>Attendance Dashboard</Title>
       
-      {loading && <div style={{ textAlign: 'center', padding: '40px' }}><Spin size="large" tip="Loading events data..." /></div>}
+      {loading && (
+        <div style={{ textAlign: 'center', padding: '40px' }}>
+          <Spin size="large" />
+          <div style={{ marginTop: 16 }}>Loading events data...</div>
+        </div>
+      )}
       
       {error && (
         <Alert 
@@ -82,36 +87,53 @@ const _attendanceDashboard = () => {
               </div>
               
               <Divider>Attendance Statistics</Divider>
-              
-              <Row gutter={16} style={{ textAlign: 'center', marginBottom: '16px' }}>
-                <Col span={8}>
+                <Row gutter={16} style={{ textAlign: 'center', marginBottom: '16px' }}>
+                <Col span={6}>
                   <Statistic 
                     title="Check-ins" 
                     value={event.attendanceCount || 0}
                     prefix={<CheckCircleOutlined />} 
                   />
                 </Col>
-                <Col span={8}>
+                <Col span={6}>
                   <Statistic 
                     title="Registered" 
                     value={event.participantCount || 0}
                     prefix={<UserOutlined />} 
+                    valueStyle={event.participantCount === 0 ? { color: '#faad14' } : {}}
                   />
-                </Col>
-                <Col span={8}>
+                  {event.participantCount === 0 && (
+                    <Text type="warning" style={{ fontSize: '12px' }}>No registrations</Text>
+                  )}
+                </Col>                <Col span={6}>
                   <Statistic 
-                    title="Rate" 
-                    value={event.attendanceRate ? Math.round(event.attendanceRate) : 0}
-                    suffix="%" 
-                    prefix={<PercentageOutlined />}
+                    title="Expected" 
+                    value={event.expectedParticipants || 0}
+                    prefix={<TeamOutlined />}
+                    valueStyle={!event.expectedParticipants ? { color: '#faad14' } : {}}
                   />
+                  {!event.expectedParticipants && (
+                    <Text type="warning" style={{ fontSize: '12px' }}>Not specified</Text>
+                  )}
                 </Col>
-              </Row>
-              
-              <Progress 
+                <Col span={6}>
+                  <Tooltip title={event.expectedParticipants > 0 ? "Rate based on expected participants" : (event.participantCount > 0 ? "Percentage of registered participants who checked in" : "Rate based on estimated attendance capacity")}>
+                    <Statistic 
+                      title="Rate"
+                      value={event.attendanceRate ? Math.round(event.attendanceRate) : 0}
+                      suffix="%" 
+                      prefix={<PercentageOutlined />}
+                    />
+                  </Tooltip>
+                </Col>
+              </Row>              <Progress 
                 percent={Math.min(100, event.attendanceRate || 0)} 
                 showInfo={false} 
-                status={event.attendanceRate > 70 ? "success" : event.attendanceRate > 30 ? "normal" : "exception"}
+                status={
+                  event.expectedParticipants > 0 || event.participantCount > 0 ?
+                  (event.attendanceRate > 70 ? "success" : event.attendanceRate > 30 ? "normal" : "exception") :
+                  "normal"
+                }
               />
             </Card>
           </Col>

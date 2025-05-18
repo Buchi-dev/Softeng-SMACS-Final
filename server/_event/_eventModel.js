@@ -9,6 +9,7 @@ const eventSchema = new mongoose.Schema({
   endDate: { type: Date, required: true },
   startTime: { type: String, required: true },
   endTime: { type: String, required: true },
+  expectedParticipants: { type: Number, default: 0 },
 
   // Changed from ObjectId to String for ID number
   createdBy: {

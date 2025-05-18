@@ -46,7 +46,6 @@ const EventManagement = () => {
       setLoading(false);
     }
   };
-
   // Handle form submission
   const handleSubmit = async (values) => {
     // Convert date objects to ISO strings for API
@@ -56,6 +55,8 @@ const EventManagement = () => {
       endDate: values.dateRange[1].format('YYYY-MM-DD'),
       startTime: values.startTime.format('HH:mm'),
       endTime: values.endTime.format('HH:mm'),
+      // Ensure expectedParticipants is a number
+      expectedParticipants: parseInt(values.expectedParticipants || 0, 10),
       // Add a dummy creator ID - in a real app this would come from authentication context
       createdBy: "1326466052" // This should be replaced with the actual user's ID number
     };
@@ -92,6 +93,7 @@ const EventManagement = () => {
       description: event.description,
       type: event.type,
       location: event.location,
+      expectedParticipants: event.expectedParticipants || 0,
       dateRange: [dayjs(event.startDate), dayjs(event.endDate)],
       startTime: dayjs(event.startTime, 'HH:mm'),
       endTime: dayjs(event.endTime, 'HH:mm'),
@@ -230,14 +232,21 @@ const EventManagement = () => {
           {text}
         </Space>
       ),
-    },
-    {
+    },    {
       title: 'Participants',
       key: 'participants',
       render: (_, record) => (
-        <Space>
-          <TeamOutlined />
-          {record.attendance ? record.attendance.length : 0} / {record.participants ? record.participants.length : 0}
+        <Space direction="vertical" size="small">
+          <Space>
+            <TeamOutlined />
+            <Text>Checked-in: {record.attendance ? record.attendance.length : 0}</Text>
+          </Space>
+          <Space>
+            <Text type="secondary">Registered: {record.participants ? record.participants.length : 0}</Text>
+          </Space>
+          <Space>
+            <Text type="secondary">Expected: {record.expectedParticipants || 0}</Text>
+          </Space>
         </Space>
       ),
     },
@@ -375,14 +384,30 @@ const EventManagement = () => {
             label="Description"
           >
             <TextArea rows={4} placeholder="Enter event description" />
-          </Form.Item>
-
-          <Form.Item
+          </Form.Item>          <Form.Item
             name="location"
             label="Location"
             rules={[{ required: true, message: 'Please enter event location' }]}
           >
             <Input placeholder="Enter event location" />
+          </Form.Item>
+
+          <Form.Item
+            name="expectedParticipants"
+            label="Expected Participants"
+            rules={[{ 
+              required: false,
+              type: 'number',
+              min: 0,
+              transform: value => Number(value) || 0,
+              message: 'Please enter a valid number'
+            }]}
+          >
+            <Input 
+              type="number" 
+              min="0" 
+              placeholder="Enter expected number of participants" 
+            />
           </Form.Item>
 
           <Row gutter={16}>
