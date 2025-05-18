@@ -4,7 +4,7 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import AttendanceConsole from './pages/_attendanceConsole'
 import AttendanceDashboard from './pages/_attendanceDashboard'
-import AttendeesManagement from './pages/_attendeesManagement'
+import UserManagement from './pages/_userManagement'
 import AttendanceManagement from './pages/_attendanceManagement'
 
 
@@ -17,7 +17,7 @@ const App = () => {
         <Route path="/register" element={<Register />} />
         <Route path="/attendance-console" element={<AttendanceConsole />} />
         <Route path="/attendance-dashboard" element={<AttendanceDashboard />} />
-        <Route path="/user-management" element={<AttendeesManagement />} />
+        <Route path="/user-management" element={ <UserManagement />} />
         <Route path="/attendance-management" element={<AttendanceManagement />} />
       </Routes>
     </Router>

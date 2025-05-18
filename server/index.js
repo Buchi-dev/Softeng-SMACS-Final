@@ -6,7 +6,7 @@ const connectDB = require('./configs/db');
 const PORT = 5000;
 
 const adminRoutes = require('./_admins/_adminRoutes');
-// const userRoutes = require('./_users/_userRoutes');
+const userRoutes = require('./_users/_userRoutes');
 // const attendanceRoutesRoutes = require('./_attendance/_attendanceRoutes');
 
 
@@ -26,7 +26,7 @@ app.use(cors({
 
 //routes
 app.use('/api/admins', adminRoutes);
-// app.use('/api/users', userRoutes);
+app.use('/api/users', userRoutes);
 // app.use('/api/attendance', attendanceRoutesRoutes);
 
 connectDB().then(() => {
