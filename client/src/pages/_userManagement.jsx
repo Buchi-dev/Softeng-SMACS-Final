@@ -258,12 +258,20 @@ const UserManagement = () => {
           <div style={{ textAlign: 'center', padding: '50px' }}>
             <Spin size="large" />
           </div>
-        ) : (
-          <Table 
+        ) : (          <Table
             dataSource={filteredUsers} 
-            columns={columns} 
+            columns={columns}
             rowKey="idNumber"
-            pagination={{ pageSize: 10 }}
+            pagination={{
+              defaultPageSize: 4,
+              showSizeChanger: true,
+              pageSizeOptions: ['4', '10', '20', '50'],
+              showTotal: (total) => `Total ${total} users`,
+            }}
+            sticky={{
+              offsetHeader: 0
+            }}
+            scroll={{ x: 'max-content' }}
           />
         )}
       </Card>
