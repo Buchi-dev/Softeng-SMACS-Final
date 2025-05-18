@@ -49,24 +49,34 @@ const createEvent = async (req, res) => {
 const getAllEvents = async (req, res) => {
   try {
     await autoCloseEvents();
-    const events = await EventModel.find()
-      .populate({
-        path: 'createdBy',
-        select: 'name role',
-        match: { idNumber: { $exists: true } }
-      })
-      .populate({
-        path: 'participants',
-        select: 'name role',
-        match: { idNumber: { $exists: true } }
-      })
-      .populate({
-        path: 'attendance.user',
-        select: 'name role',
-        match: { idNumber: { $exists: true } }
-      });
+    // Since we've changed to using ID numbers instead of ObjectIds,
+    // we'll get the events without using populate
+    const events = await EventModel.find();
+    
+    // If you need to populate user data, you can do this separately:
+    /*
+    // Get the User model
+    const UserModel = require('../_users/_userModel');
+    
+    // For each event, fetch the creator and participants
+    const populatedEvents = await Promise.all(events.map(async (event) => {
+      const eventObj = event.toObject();
+      
+      // Get creator details if createdBy exists
+      if (eventObj.createdBy) {
+        const creator = await UserModel.findOne({ idNumber: eventObj.createdBy }).select('name role idNumber');
+        eventObj.creatorDetails = creator;
+      }
+      
+      return eventObj;
+    }));
+    
+    res.status(200).json(populatedEvents);
+    */
+    
     res.status(200).json(events);
   } catch (error) {
+    console.error('Error in getAllEvents:', error);
     res.status(500).json({ message: 'Error fetching events', error: error.message });
   }
 };
@@ -74,27 +84,37 @@ const getAllEvents = async (req, res) => {
 // Get one event
 const getEvent = async (req, res) => {
   try {
-    const event = await EventModel.findById(req.params.id)
-      .populate({
-        path: 'createdBy',
-        select: 'name role idNumber',
-        match: { idNumber: { $exists: true } }
-      })
-      .populate({
-        path: 'participants',
-        select: 'name role idNumber',
-        match: { idNumber: { $exists: true } }
-      })
-      .populate({
-        path: 'attendance.user',
-        select: 'name role idNumber',
-        match: { idNumber: { $exists: true } }
-      });
+    const event = await EventModel.findById(req.params.id);
 
     if (!event) return res.status(404).json({ message: 'Event not found' });
 
+    // If you need user details, you can manually fetch them like this:
+    /*
+    // Get the User model
+    const UserModel = require('../_users/_userModel');
+    const eventObj = event.toObject();
+    
+    // Get creator details if createdBy exists
+    if (eventObj.createdBy) {
+      const creator = await UserModel.findOne({ idNumber: eventObj.createdBy }).select('name role idNumber');
+      eventObj.creatorDetails = creator;
+    }
+    
+    // Get participants details if they exist
+    if (eventObj.participants && eventObj.participants.length > 0) {
+      const participantDetails = await UserModel.find({ 
+        idNumber: { $in: eventObj.participants } 
+      }).select('name role idNumber');
+      
+      eventObj.participantDetails = participantDetails;
+    }
+    
+    res.status(200).json(eventObj);
+    */
+    
     res.status(200).json(event);
   } catch (error) {
+    console.error('Error in getEvent:', error);
     res.status(500).json({ message: 'Error fetching event', error: error.message });
   }
 };
