@@ -108,9 +108,6 @@ const Login = () => {
                 <Checkbox>Remember me</Checkbox>
               </Form.Item>
             </Col>
-            <Col>
-              <Typography.Link>Forgot password?</Typography.Link>
-            </Col>
           </Row>          <Form.Item style={{ marginTop: 24 }}>
             <Button type="primary" htmlType="submit" block size="large" loading={loading}>
               Sign In

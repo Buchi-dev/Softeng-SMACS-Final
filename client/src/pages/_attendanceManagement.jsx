@@ -211,10 +211,22 @@ const _attendanceManagement = () => {
                   rowKey={(record, idx) => idx}
                   columns={[
                     {
-                      title: 'User ID',
-                      dataIndex: 'user',
-                      key: 'user'
+                      title: 'ID Number',
+                      dataIndex: ['userDetails', 'idNumber'],
+                      key: 'idNumber'
                     },
+                    {
+                      title: 'Name',
+                      dataIndex: ['userDetails', 'name'],
+                      key: 'name'
+                    },
+                    {
+                      title: 'Role',
+                      dataIndex: ['userDetails', 'role'],
+                      key: 'role',
+                      render: (role) => role.charAt(0).toUpperCase() + role.slice(1)
+                    },
+                   
                     {
                       title: 'Check-in Time',
                       dataIndex: 'checkedInAt',
