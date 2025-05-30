@@ -95,17 +95,7 @@ const _attendanceDashboard = () => {
                     prefix={<CheckCircleOutlined />} 
                   />
                 </Col>
-                <Col span={6}>
-                  <Statistic 
-                    title="Registered" 
-                    value={event.participantCount || 0}
-                    prefix={<UserOutlined />} 
-                    valueStyle={event.participantCount === 0 ? { color: '#faad14' } : {}}
-                  />
-                  {event.participantCount === 0 && (
-                    <Text type="warning" style={{ fontSize: '12px' }}>No registrations</Text>
-                  )}
-                </Col>                <Col span={6}>
+                                <Col span={6}>
                   <Statistic 
                     title="Expected" 
                     value={event.expectedParticipants || 0}

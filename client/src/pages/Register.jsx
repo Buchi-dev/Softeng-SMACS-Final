@@ -28,6 +28,7 @@ const Register = () => {
       await createAdmin(userData);
       message.success('Admin registration successful!');
       // Redirect to login page
+      alert('Registration successful! Please log in.');
       navigate('/login');
     } catch (error) {
       console.error('Registration error:', error);

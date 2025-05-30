@@ -39,6 +39,7 @@ const EventManagement = () => {
     try {
       const data = await getAllEvents();
       setEvents(data);
+      alert('Events loaded successfully');
       message.success('Events loaded successfully');
     } catch (error) {
       message.error('Failed to load events: ' + error.message);
@@ -73,6 +74,7 @@ const EventManagement = () => {
       } else {
         // Create new event
         await createEvent(eventData);
+        alert('Event created successfully');
         message.success('Event created successfully');
       }
       setModalVisible(false);
@@ -415,7 +417,23 @@ const EventManagement = () => {
               <Form.Item
                 name="dateRange"
                 label="Event Date Range"
-                rules={[{ required: true, message: 'Please select event dates' }]}
+                rules={[
+                  { 
+                    required: true, 
+                    message: 'Please select event dates' 
+                  },
+                  {
+                    validator: (_, value) => {
+                      if (!value || !value[0] || !value[1]) {
+                        return Promise.resolve();
+                      }
+                      if (value[1].isBefore(value[0]) || value[1].isSame(value[0])) {
+                        return Promise.reject(new Error('End date must be after start date'));
+                      }
+                      return Promise.resolve();
+                    }
+                  }
+                ]}
               >
                 <RangePicker style={{ width: '100%' }} />
               </Form.Item>

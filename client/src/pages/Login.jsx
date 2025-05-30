@@ -31,6 +31,7 @@ const Login = () => {
       // Store admin information in localStorage
       localStorage.setItem('adminUser', JSON.stringify(data));
       message.success('Admin login successful!');
+      alert('Login successful!');
       
       // Redirect to admin console/dashboard
       navigate('/attendance-management');
